@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://101.43.199.148:3306/gulimall_wms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: Hukeai0322
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+  application:
+    name: gulimall-ware
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: auto
+server:
+  port: 11000
+# 调整日志等级：com.atguigu包下的所有都调成debug等级
+logging:
+  level:
+    com.atguigu: debug
