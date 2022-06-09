@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,6 +20,9 @@ class GulimallProductApplicationTests {
 
     @Autowired
     CategoryService categoryService;
+
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
 
     @Test
     void contextLoads() {
@@ -38,6 +42,11 @@ class GulimallProductApplicationTests {
     public void testFindPath(){
         Long[] catelogPath = categoryService.findCatelogPath(225L);
         System.out.println("完整路径：" + Arrays.asList(catelogPath));
+    }
+
+    @Test
+    public void testRedis(){
+        System.out.println(stringRedisTemplate);
     }
 
 }
