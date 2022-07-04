@@ -13,5 +13,32 @@
         <result property="catelogId" column="catelog_id"/>
     </resultMap>
 
+    <resultMap id="spuAttrGroup" type="com.atguigu.gulimall.product.vo.SpuItemAttrGroupVo">
+        <result property="groupName" column="attr_group_name"/>
+        <collection property="attrs" ofType="com.atguigu.gulimall.product.vo.Attr">
+            <result property="attrId" column="attr_id"></result>
+            <result property="attrName" column="attr_name"></result>
+            <result property="attrValue" column="attr_value"></result>
+        </collection>
+    </resultMap>
+
+    <select id="gerAttrGroupWithAttrsBySpuId" resultMap="spuAttrGroup">
+        SELECT
+            pav.spu_id,
+            ag.attr_group_id,
+            ag.attr_group_name,
+            aar.attr_id,
+            attr.attr_name,
+            pav.attr_value
+        FROM
+            pms_attr_group ag
+            LEFT JOIN pms_attr_attrgroup_relation aar ON ag.attr_group_id = aar.attr_group_id
+            LEFT JOIN pms_attr attr ON attr.attr_id = aar.attr_id
+            LEFT JOIN pms_producrt_attr_value pav ON pav.attr_id = attr.attr_id
+        WHERE
+            pav.spu_id = #{spuId}
+        AND
+            ag.catelog_id = #{catalogId}
+    </select>
 
 </mapper>

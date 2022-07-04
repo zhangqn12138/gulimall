@@ -52,10 +52,22 @@ spring:
         - id: gulimall_host_route
           uri: lb://gulimall-product
           predicates:
-            - Host=gulimall.com
+            - Host=gulimall.com,item.gulimall.com
 
         ## 配置从nginx回来的search.gulimall.com的域名的请求
         - id: gulimall_search_route
           uri: lb://gulimall-search
           predicates:
             - Host=search.gulimall.com
+
+        ## 配置从nginx回来的auth.gulimall.com的域名的请求
+        - id: gulimall_auth_route
+          uri: lb://gulimall-auth-server
+          predicates:
+            - Host=auth.gulimall.com
+
+        ## 配置从nginx回来的cart.gulimall.com的域名的请求
+        - id: gulimall_cart_route
+          uri: lb://gulimall-cart
+          predicates:
+            - Host=cart.gulimall.com

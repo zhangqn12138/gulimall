@@ -5,6 +5,7 @@ import com.atguigu.gulimall.product.entity.AttrEntity;
 import com.atguigu.gulimall.product.service.AttrService;
 import com.atguigu.gulimall.product.vo.AttrGroupRelationVo;
 import com.atguigu.gulimall.product.vo.AttrGroupWithAttrsVo;
+import com.atguigu.gulimall.product.vo.SpuItemAttrGroupVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,6 +89,17 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
             return groupWithAttrsVo;
         }).collect(Collectors.toList());
         return attrsVo;
+    }
+
+    @Override
+    public List<SpuItemAttrGroupVo> gerAttrGroupWithAttrsBySpuId(Long spuId, Long catalogId) {
+        //1.查出当前spu对应的所有属性分组信息以及当前分组下所有属性及其对应的值
+        //1.1 根据三级分类id在pms_attr_group中查询属性分组信息
+        //1.2 根据分组id在pms_attr_attrgroup_relation中查询出属性id
+        //1.3 根据属性id在pms_attr中查出属性名
+        //1.4 根据属性id和spuid在pms_product_attr_value中查出该商品属性值
+        List<SpuItemAttrGroupVo> vos = baseMapper.gerAttrGroupWithAttrsBySpuId(spuId, catalogId);
+        return vos;
     }
 
 }
