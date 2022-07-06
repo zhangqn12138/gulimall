@@ -71,3 +71,9 @@ spring:
           uri: lb://gulimall-cart
           predicates:
             - Host=cart.gulimall.com
+
+        ## 配置从nginx回来的order.gulimall.com的域名的请求
+        - id: gulimall_order_route
+          uri: lb://gulimall-order
+          predicates:
+            - Host=order.gulimall.com

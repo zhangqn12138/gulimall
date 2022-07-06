@@ -14,12 +14,22 @@ import java.util.List;
  **/
 public class JavaToJson {
     @Test
-    public void test(){
+    public void test01(){
         List<SourceDurationDto> sourceDurationDtos= new ArrayList<>();
         SourceDurationDto sourceDurationDto = new SourceDurationDto(1, 2, 3L, 4L, 5L, 2000L, 3000L);
         sourceDurationDtos.add(sourceDurationDto);
         String strs= JSON.toJSONString(sourceDurationDtos);
         System.out.println(strs);
+    }
+
+    @Test
+    public void test02(){
+        List<Long> ids = new ArrayList<>();
+        ids.add(1L);
+        ids.add(2L);
+        ids.add(3L);
+        String jsonString = JSON.toJSONString(ids);
+        System.out.println(jsonString);
     }
 
 }
