@@ -27,12 +27,14 @@ public class GuliFeignConfig {
             public void apply(RequestTemplate requestTemplate) {
                 //1.RequstContextHolder拿到刚进来的请求
                 ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-                HttpServletRequest request = requestAttributes.getRequest();//老请求
-                if(request != null){
-                    //2.同步请求头的Cookie数据
-                    String cookie = request.getHeader("Cookie");
-                    //3.给新请求同步老请求的Cookie数据
-                    requestTemplate.header("Cookie", cookie);
+                if(requestAttributes != null){
+                    HttpServletRequest request = requestAttributes.getRequest();//老请求
+                    if(request != null){
+                        //2.同步请求头的Cookie数据
+                        String cookie = request.getHeader("Cookie");
+                        //3.给新请求同步老请求的Cookie数据
+                        requestTemplate.header("Cookie", cookie);
+                    }
                 }
             }
         };

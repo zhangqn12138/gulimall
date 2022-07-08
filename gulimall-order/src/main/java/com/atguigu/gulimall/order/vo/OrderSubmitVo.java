@@ -4,12 +4,6 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
-/**
- * @Description: 封装订单提交数据的vo
- * @Created: with IntelliJ IDEA.
- * @author: 夏沫止水
- * @createTime: 2020-07-04 11:54
- **/
 
 @Data
 public class OrderSubmitVo {
