@@ -8,8 +8,8 @@ public class NoStockException extends RuntimeException {
 
     private Long skuId;
 
-    public NoStockException(){
-        super("商品库存不足");
+    public NoStockException(String msg){
+        super(msg);
     }
 
     public NoStockException(Long skuId){
