@@ -25,8 +25,8 @@ public class MyMQConfig {
     @Bean
     public Queue orderDelayQueue(){
         Map<String, Object> arguments = new HashMap<>();
-        arguments.put("x-dead-letter-exchange", "oder-event-exchange");
-        arguments.put("x-dead-letter-routing-key", "oder.release.order");
+        arguments.put("x-dead-letter-exchange", "order-event-exchange");
+        arguments.put("x-dead-letter-routing-key", "order.release.order");
         arguments.put("x-message-ttl", 60000);
         Queue queue = new Queue("order.delay.queue", true, false, false, arguments);
         return queue;
@@ -60,6 +60,20 @@ public class MyMQConfig {
                 , Binding.DestinationType.QUEUE
                 , "order-event-exchange"
                 , "order.release.order"
+                , null);
+        return binding;
+    }
+
+    /**
+     * 订单释放直接和库存释放进行绑定
+     * @return
+     */
+    @Bean
+    public Binding orderReleaseOtherBinding(){
+        Binding binding = new Binding("stock.release.stock.queue"
+                , Binding.DestinationType.QUEUE
+                , "order-event-exchange"
+                , "order.release.other.#"
                 , null);
         return binding;
     }

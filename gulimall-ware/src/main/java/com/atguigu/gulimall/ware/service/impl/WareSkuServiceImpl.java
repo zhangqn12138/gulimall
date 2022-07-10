@@ -1,6 +1,7 @@
 package com.atguigu.gulimall.ware.service.impl;
 
 import com.alibaba.fastjson.TypeReference;
+import com.atguigu.common.to.OrderTo;
 import com.atguigu.common.to.mq.StockDeatilTo;
 import com.atguigu.common.to.mq.StockLockedTo;
 import com.atguigu.common.utils.R;
@@ -211,14 +212,16 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
                 OrderVo data = r.getData(new TypeReference<OrderVo>() {
                 });
                 if(detail.getLockStatus() == 1){
-                    //增加一个保障：如果库存锁定详情的状态是已锁定，才解锁
+                    //如果库存锁定详情的状态是已锁定，才解锁
                     if(data == null || data.getStatus() == 4){
+                        //订单真的存在且未被取消，才解锁
                         unLockStock(detail.getSkuId(), detail.getWareId(), detail.getSkuNum(), detailId);
                     }
                 }
             }
         }
     }
+
 
     private void unLockStock(Long skuId, Long wareId, Integer skuNum, Long detailId) {
         //先解锁
@@ -228,6 +231,24 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
         detailEntity.setId(detailId);
         detailEntity.setLockStatus(2);//将状态变为已解锁
         orderTaskDetailService.updateById(detailEntity);
+    }
+
+    //防止订单服务在改订单状态时发生卡顿，从而导致解锁库存时由于订单状态未改而无法解锁，此后消息不会传来，将会一直无法解锁
+    @Transactional
+    @Override
+    public void unlockStock(OrderTo orderTo) {
+        //查询库存的最新状态，避免重复解锁
+        WareOrderTaskEntity task = orderTaskService.getOrderTaskByOrderSn(orderTo.getOrderSn());
+        Long taskId = task.getId();
+        //按照库存工作单，找到未解锁的库存进行解锁
+        List<WareOrderTaskDetailEntity> entities = orderTaskDetailService.list(new QueryWrapper<WareOrderTaskDetailEntity>()
+                .eq("task_id", taskId).eq("lock_status", 1));
+        //TODO 此时有可能已经都被解锁了，entities可能为null，此时应该怎么处理？我加了一个非空判断
+        if(entities != null){
+            for (WareOrderTaskDetailEntity entity : entities) {
+                unLockStock(entity.getSkuId(), entity.getWareId(), entity.getSkuNum(), entity.getId());
+            }
+        }
     }
 
     @Data

@@ -1,6 +1,7 @@
 package com.atguigu.gulimall.ware.listener;
 
 import com.alibaba.fastjson.TypeReference;
+import com.atguigu.common.to.OrderTo;
 import com.atguigu.common.to.mq.StockDeatilTo;
 import com.atguigu.common.to.mq.StockLockedTo;
 import com.atguigu.common.utils.R;
@@ -47,6 +48,7 @@ public class StockReleaseListener {
         try {
             //库存锁定失败，此时无需解锁，因为都回滚了
             //订单是正常的
+            //订单状态不是已锁定
             //订单不存在，或者订单存在但状态为已取消，此时需要解锁库存
             wareSkuService.unlockStock(to);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
@@ -57,4 +59,13 @@ public class StockReleaseListener {
         }
     }
 
+    @RabbitHandler
+    public void handlerOrderCloseRelease(OrderTo orderTo, Message message, Channel channel) throws IOException {
+        try{
+            wareSkuService.unlockStock(orderTo);
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        } catch (Exception e){
+            channel.basicReject(message.getMessageProperties().getDeliveryTag(), true);
+        }
+    }
 }

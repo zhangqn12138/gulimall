@@ -2,6 +2,7 @@ package com.atguigu.gulimall.order.service.impl;
 
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.exception.NoStockException;
+import com.atguigu.common.to.OrderTo;
 import com.atguigu.common.utils.R;
 import com.atguigu.common.vo.MemberRespVo;
 import com.atguigu.gulimall.order.constant.OrderConstant;
@@ -17,6 +18,8 @@ import com.atguigu.gulimall.order.to.OrderCreateTo;
 import com.atguigu.gulimall.order.vo.*;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import io.seata.spring.annotation.GlobalTransactional;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -70,6 +73,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     private OrderItemService orderItemService;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -135,7 +141,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         return confirmVo;
     }
 
-    @GlobalTransactional//开启全局事务
+//    @GlobalTransactional//开启全局事务
     @Transactional
     @Override
     public SubmitOrderResponseVo submitOrder(OrderSubmitVo vo) {
@@ -179,6 +185,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                     if(r.getCode() == 0){
                     //锁定成功
                     responseVo.setOrder(order.getOrder());
+                    rabbitTemplate.convertAndSend("order-event-exchange", "order.create.order", order.getOrder());
                     return responseVo;
                 }else{
                     //锁定失败
@@ -197,6 +204,25 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
         OrderEntity orderEntity = this.getOne(new QueryWrapper<OrderEntity>().eq("order_sn", orderSn));
         return orderEntity;
+    }
+
+    @Override
+    public void closeOrder(OrderEntity entity) {
+        OrderEntity orderEntity = this.getById(entity.getId());
+        //TODO 思考：如果此时订单由于积分出现故障，没能下单，订单数据回滚，orderEntity为null则会报空指针异常，此时是怎么处理？我加了一个非空判断
+        if(orderEntity != null){
+            if(orderEntity.getStatus() == OrderStatusEnum.CREATE_NEW.getCode()){
+                //如果订单是待付款状态，则关单
+                OrderEntity update = new OrderEntity();
+                update.setId(orderEntity.getId());
+                update.setStatus(OrderStatusEnum.CANCLED.getCode());
+                this.updateById(update);
+                //订单解锁成功，再次给MQ发消息
+                OrderTo orderTo = new OrderTo();
+                BeanUtils.copyProperties(orderEntity, orderTo);
+                rabbitTemplate.convertAndSend("order-event-exchange", "order.release.other", orderTo);
+            }
+        }
     }
 
     /**
