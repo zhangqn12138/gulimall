@@ -33,6 +33,18 @@ public class OrderController {
     }
 
     /**
+     * 查询当前用户所有订单和对应订单项信息
+     * @param params
+     * @return
+     */
+    @PostMapping("/listWithItem")
+    //@RequiresPermissions("order:order:list")
+    public R listWithItem(@RequestBody Map<String, Object> params){
+        PageUtils page = orderService.queryPageWithItem(params);
+        return R.ok().put("page", page);
+    }
+
+    /**
      * 列表
      */
     @RequestMapping("/list")

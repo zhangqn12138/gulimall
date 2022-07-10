@@ -1,4 +1,4 @@
-package com.atguigu.gulimall.order.interceptor;
+package com.atguigu.gulimall.member.interceptor;
 
 import com.atguigu.common.constant.AuthServerConstant;
 import com.atguigu.common.vo.MemberRespVo;
@@ -26,11 +26,8 @@ public class LoginUserInterceptor implements HandlerInterceptor {
 
         //让支付服务不用登陆
         String uri = request.getRequestURI();
-        AntPathMatcher antPathMatcher = new AntPathMatcher();
-
-        boolean match1 = antPathMatcher.match("/order/order/status/**", uri);
-        boolean match2 = antPathMatcher.match("/payed/notify", uri);
-        if(match1 || match2){
+        boolean match = new AntPathMatcher().match("/member/**", uri);
+        if(match){
             return true;
         }
 
