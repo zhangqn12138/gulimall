@@ -31,4 +31,6 @@ public class SkuItemVo {
     //附加：有货无货
     private boolean hasStock = true;
 
+    //商品的秒杀信息
+    private SeckillInfoVo seckillInfo;
 }
