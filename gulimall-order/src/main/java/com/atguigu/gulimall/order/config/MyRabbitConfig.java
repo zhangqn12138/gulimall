@@ -18,6 +18,7 @@ import javax.annotation.PostConstruct;
 @Configuration
 public class MyRabbitConfig {
 
+    //TODO 由于引入了Sentinel，可能会存在循环依赖问题，待解决
     @Autowired
     RabbitTemplate rabbitTemplate;
 
